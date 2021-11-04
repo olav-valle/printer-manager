@@ -1,10 +1,14 @@
 from flask import Flask, json
+import requests
 from flask.globals import request
+from flask_cors import CORS
 
+#todo: implement webcam snapshot fetch
 class ApiHandler:
     def __init__(self, printers):
         self.printers = printers
         self.app = Flask(__name__)
+        CORS(self.app)
         self.init_handlers()
 
     def init_handlers(self):
@@ -22,6 +26,10 @@ class ApiHandler:
                     return json.dumps(printer.get_vars_as_dict())
             return "Error: invalid ID"
 
+        @self.app.route('/printers/webcam', methods=["GET"])
+        def get_webcam():
+            return requests.get('http://prototype.local/webcam/?action=snapshot').content
+
         @self.app.route('/printers/<int:id>/clear/', methods=["GET", "POST"])
         def clear_plate(id):
             id_list = []
@@ -38,7 +46,7 @@ class ApiHandler:
 
             printer_index = id_list.index(id)
             printer = self.printers[printer_index]
-            if reset_string.lower() == "true":  
+            if reset_string.lower() == "true":
                 printer.available = True
                 return json.dumps(printer.get_vars_as_dict())
             elif reset_string.lower() == "false":
@@ -49,7 +57,7 @@ class ApiHandler:
                 
 
     def run(self):
-        self.app.run(host="0.0.0.0", port=105)
+        self.app.run(host="0.0.0.0", port=5000)
 
 
 

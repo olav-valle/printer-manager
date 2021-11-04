@@ -62,7 +62,7 @@ def printer_update_async(printer):
             printer.update()
         # Wait for delay
         while not time.time() >= start_time + update_delay:
-            time.sleep(0.1)
+            time.sleep(5)
 
 # Create list of threads, one for each printer
 # Starts update function as background processes

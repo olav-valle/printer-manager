@@ -21,7 +21,8 @@ class Printer:
     ]
 
     def __init__(self, id, api):
-        self.hostname = "http://octopi" + id
+        # self.hostname = "http://octopi" + id
+        self.hostname = "http://prototype.local"
         self.apikey = api
         self.id = id
         
@@ -69,6 +70,7 @@ class Printer:
         try:
             self.client = octorest.OctoRest(url=self.hostname, apikey=self.apikey)
             self.retryTimePrevious = time.time()
+            print("Connection successful.")
         except Exception as e:
             print("Couldn't begin connection to " + self.hostname)
             print(e)
