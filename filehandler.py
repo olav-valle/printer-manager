@@ -1,6 +1,7 @@
 import os
 from autoslicer.autoslice import AutoSlicer
 
+
 class Watcher:
     def __init__(self, printers, config):
 
@@ -30,7 +31,7 @@ class Watcher:
         out_str = input_str.replace(" ", "_")
         # change norwegian letters
         if out_str.isascii() == False:
-            dic = {"æ":"ae", "Æ":"Ae", "ø":"o", "Ø":"O", "å":"aa", "Å":"Aa"}
+            dic = {"æ": "ae", "Æ": "Ae", "ø": "o", "Ø": "O", "å": "aa", "Å": "Aa"}
             for i, j in dic.iteritems():
                 out_str = out_str.replace(i, j)
             # remove other non-ascii letters
@@ -74,12 +75,15 @@ class Watcher:
             print(file)
             try:
                 autoslicer.slice(os.path.join(self.INPUT_PATH, file), self.INPUT_PATH)
-            except:
+                os.replace(os.path.join(self.INPUT_PATH, file), os.path.join(self.FINISHED_PATH, file))
+
+            except BaseException as e:
+                print(e)
                 print("File", file, "failed to slice")
                 # Move to "error_files"
                 os.replace(os.path.join(self.INPUT_PATH, file), os.path.join(self.ERROR_PATH, file))
             # Move to "finished_files"
-            os.replace(os.path.join(self.INPUT_PATH, file), os.path.join(self.FINISHED_PATH, file))
+            # os.replace(os.path.join(self.INPUT_PATH, file), os.path.join(self.FINISHED_PATH, file))
 
     # Send GCODE files to printers
     def __sendFiles(self, gcode_files):
@@ -88,20 +92,20 @@ class Watcher:
         for i, printer in enumerate(self.printers):
             if printer.available:
                 available_printer_indexes.append(i)
-        
+
         while len(available_printer_indexes) > 0 and len(gcode_files) > 0:
-                printer_index = available_printer_indexes.pop(0)
-                file = gcode_files.pop(0)
-                print("File to print: " + file)
-                try:
-                    self.printers[printer_index].client.upload(self.INPUT_PATH + file)
-                    self.printers[printer_index].client.select(file, print=True)
-                    self.printers[printer_index].available = False
-                    os.replace(self.INPUT_PATH + file, self.FINISHED_PATH + file)
-                    print("Job " + file + " started on printer " + self.printers[printer_index].id)
-                except Exception as e:
-                    print("Couldn't start job")
-                    print(e)
+            printer_index = available_printer_indexes.pop(0)
+            file = gcode_files.pop(0)
+            print("File to print: " + file)
+            try:
+                self.printers[printer_index].client.upload(self.INPUT_PATH + file)
+                self.printers[printer_index].client.select(file, print=True)
+                self.printers[printer_index].available = False
+                os.replace(self.INPUT_PATH + file, self.FINISHED_PATH + file)
+                print("Job " + file + " started on printer " + self.printers[printer_index].id)
+            except Exception as e:
+                print("Couldn't start job")
+                print(e)
 
     # Main function in class
     # Gets files ready for print, gets available printers

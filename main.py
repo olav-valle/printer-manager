@@ -89,5 +89,3 @@ while True:
         app.update_printers()
 
     watcher.update()
-
-# 
